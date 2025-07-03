@@ -1,0 +1,208 @@
+﻿@model MyBankingApp.Web.ViewModels.ContactVM
+
+
+@{
+    ViewBag.Title = "Kontakt";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <h2>Kontaktieren Sie uns</h2>
+
+            @using (Html.BeginForm("Contact", "Home", FormMethod.Post, new { @class = "form-horizontal", @id = "contactForm" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Name, new { @class = "col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.DevExpress().TextBoxFor(m => m.Name, settings =>
+                                  {
+                                      settings.Name = "Name";
+                                      settings.Properties.NullText = "Geben Sie Ihren Namen ein...";
+                                      settings.Properties.DisplayFormatString = "";
+                                      settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+                                      settings.ControlStyle.CssClass = "form-control";
+                                  }).GetHtml()
+                        @Html.ValidationMessageFor(m => m.Name, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.EmailAddress, new { @class = "col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.DevExpress().TextBoxFor(m => m.EmailAddress, settings =>
+                                  {
+                                      settings.Name = "EmailAddress";
+                                      settings.Properties.NullText = "ihre.email@beispiel.de";
+                                      settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+                                      settings.ControlStyle.CssClass = "form-control";
+                                  }).GetHtml()
+                        @Html.ValidationMessageFor(m => m.EmailAddress, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.PhoneNumber, new { @class = "col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.DevExpress().TextBoxFor(m => m.PhoneNumber, settings =>
+                                  {
+                                      settings.Name = "PhoneNumber";
+                                      settings.Properties.NullText = "+49 123 456789";
+                                      settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+                                      settings.ControlStyle.CssClass = "form-control";
+                                  }).GetHtml()
+                        @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Message, new { @class = "col-md-3 control-label" })
+                    <div class="col-md-9">
+                        @Html.DevExpress().MemoFor(m => m.Message, settings =>
+                                  {
+                                      settings.Name = "Message";
+                                      settings.Properties.NullText = "Ihre Nachricht...";
+                                      settings.Properties.Rows = 5;
+                                      settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+                                      settings.ControlStyle.CssClass = "form-control";
+                                  }).GetHtml()
+                        @Html.ValidationMessageFor(m => m.Message, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-3 col-md-9">
+                        @Html.DevExpress().Button(settings =>
+                                  {
+                                      settings.Name = "submitBtn";
+                                      settings.Text = "Nachricht senden";
+                                      settings.UseSubmitBehavior = false;
+                                      settings.ControlStyle.CssClass = "btn btn-primary btn-lg";
+                                      settings.ClientSideEvents.Click = "function(s, e) { e.processOnServer = false; submitForm(); }";
+                                  }).GetHtml()
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@* DevExpress PopupControl für Erfolgsmeldung *@
+@Html.DevExpress().PopupControl(settings =>
+{
+    settings.Name = "successPopup";
+    settings.HeaderText = "Erfolgreich gesendet!";
+    settings.ShowCloseButton = true;
+    settings.ShowMaximizeButton = false;
+    settings.ShowPinButton = false;
+    settings.AllowDragging = false;
+    settings.Modal = true;
+    settings.PopupHorizontalAlign = DevExpress.Web.PopupHorizontalAlign.WindowCenter;
+    settings.PopupVerticalAlign = DevExpress.Web.PopupVerticalAlign.WindowCenter;
+    settings.Width = 400;
+    settings.Height = 200;
+    settings.CloseAction = DevExpress.Web.CloseAction.CloseButton;
+    settings.SetContent(() =>
+    {
+        ViewContext.Writer.Write("<div style='padding: 20px; text-align: center;'>");
+        ViewContext.Writer.Write("<h4>Vielen Dank für Ihre Nachricht!</h4>");
+        ViewContext.Writer.Write("<p>Wir werden uns schnellstmöglich bei Ihnen melden.</p>");
+        ViewContext.Writer.Write("</div>");
+    });
+}).GetHtml()
+
+<script type="text/javascript">
+    function submitForm() {
+        // Einfache Client-seitige Validierung
+        var name = Name.GetText();
+        var email = EmailAddress.GetText();
+        var phone = PhoneNumber.GetText();
+        var message = Message.GetText();
+
+        if (!name || name.trim() === '') {
+            alert('Bitte geben Sie Ihren Namen an.');
+            Name.Focus();
+            return false;
+        }
+
+        if (!email || email.trim() === '') {
+            alert('Bitte geben Sie eine E-Mail-Adresse an.');
+            EmailAddress.Focus();
+            return false;
+        }
+
+        if (!phone || phone.trim() === '') {
+            alert('Bitte geben Sie eine Telefonnummer an.');
+            PhoneNumber.Focus();
+            return false;
+        }
+
+        if (!message || message.trim() === '') {
+            alert('Bitte geben Sie eine Nachricht ein.');
+            Message.Focus();
+            return false;
+        }
+
+        // Formular-Daten sammeln
+        var formData = {
+            Name: name,
+            EmailAddress: email,
+            PhoneNumber: phone,
+            Message: message,
+            __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+        };
+
+        // AJAX-Aufruf
+        $.ajax({
+            url: '@Url.Action("Contact", "Home")',
+            type: 'POST',
+            data: formData,
+            success: function(response) {
+                if (response.success) {
+                    // Formular zurücksetzen
+                    Name.SetText('');
+                    EmailAddress.SetText('');
+                    PhoneNumber.SetText('');
+                    Message.SetText('');
+
+                    // Popup anzeigen
+                    successPopup.Show();
+                } else {
+                    if (response.errors && response.errors.length > 0) {
+                        alert('Fehler:\n' + response.errors.join('\n'));
+                    } else {
+                        alert('Ein Fehler ist aufgetreten. Bitte überprüfen Sie Ihre Eingaben.');
+                    }
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
+                console.log('Error details:', xhr.responseText);
+            }
+        });
+
+        return false;
+    }
+
+    // Warten bis alle DevExpress Controls geladen sind
+    $(document).ready(function() {
+        // Überprüfen ob alle Controls verfügbar sind
+        var checkControls = function() {
+            if (typeof Name !== 'undefined' &&
+                typeof EmailAddress !== 'undefined' &&
+                typeof PhoneNumber !== 'undefined' &&
+                typeof Message !== 'undefined' &&
+                typeof successPopup !== 'undefined') {
+                console.log('Alle DevExpress Controls erfolgreich geladen');
+            } else {
+                console.log('Warte auf DevExpress Controls...');
+                setTimeout(checkControls, 100);
+            }
+        };
+
+        setTimeout(checkControls, 500);
+    });
+</script>
