@@ -64,15 +64,6 @@ namespace MyBankingApp.Data.Repositories
             get { return _verkTransaktionenGVRepository ?? (_verkTransaktionenGVRepository = new Repository<VerkTransaktionGV>(_context)); }
         }
 
-        // Business logic methods
-        public List<Bankkonto> GetBankkontenForBenutzer(Guid benutzerId)
-        {
-            return _context.Kontozugriffe
-                .Where(ka => ka.BenutzerId == benutzerId && ka.Zugriffslebel >= Kontozugriffelevel.Anzeigen)
-                .Include(ka => ka.Konto)
-                .Select(ka => ka.Konto)
-                .ToList();
-        }
 
         public List<Transaktion> GetTransaktionenForBankkonto(Guid bankkontoId, int skip = 0, int take = 20)
         {
@@ -83,13 +74,61 @@ namespace MyBankingApp.Data.Repositories
                 .Take(take)
                 .ToList();
         }
+        public List<Bankkonto> GetBankkontenForBenutzer(Guid benutzerId)
+        {
+            var konten = _context.Kontozugriffe
+                .Where(ka => ka.BenutzerId == benutzerId && ka.Zugriffslebel >= Kontozugriffelevel.Anzeigen)
+                .Include(ka => ka.Konto)
+                .Include(ka => ka.Konto.Transaktionen) // WICHTIG: Transaktionen mit laden
+                .Select(ka => ka.Konto)
+                .ToList();
+
+            // Saldo berechnen
+            foreach (var konto in konten)
+            {
+                konto.AktuellerSaldo = konto.Transaktionen.Sum(x => x.Betrag);
+            }
+
+            return konten;
+        }
 
         public List<Transaktion> GetRecentTransaktionen(int count = 10)
         {
             return _context.Transaktionen
-                .Include(t => t.Bankkonto)
+                .Include(t => t.Bankkonto) // WICHTIG: Bankkonto mit laden
                 .OrderByDescending(t => t.Buchungsdatum)
                 .Take(count)
+                .ToList();
+        }
+
+        // NEUE METHODE: Speziell für Transaktionen-Grid
+        public List<Transaktion> GetRecentTransaktionenWithBankInfo(int count = 10)
+        {
+            return _context.Transaktionen
+                .Include(t => t.Bankkonto) // Bankkonto-Daten mit laden
+                .OrderByDescending(t => t.Buchungsdatum)
+                .Take(count)
+                .Select(t => new Transaktion
+                {
+                    Id = t.Id,
+                    Buchungsdatum = t.Buchungsdatum,
+                    ValutaDatum = t.ValutaDatum,
+                    Betrag = t.Betrag,
+                    Waehrung = t.Waehrung,
+                    Verwendungszweck = t.Verwendungszweck,
+                    EmpfaengerName = t.EmpfaengerName,
+                    AbsenderName = t.AbsenderName,
+                    Kategorie = t.Kategorie,
+                    BankkontoId = t.BankkontoId,
+                    // Bankkonto-Daten explizit setzen
+                    Bankkonto = new Bankkonto
+                    {
+                        Id = t.Bankkonto.Id,
+                        Bankname = t.Bankkonto.Bankname,
+                        IBAN = t.Bankkonto.IBAN,
+                        Kontoinhaber = t.Bankkonto.Kontoinhaber
+                    }
+                })
                 .ToList();
         }
 
@@ -135,6 +174,8 @@ namespace MyBankingApp.Data.Repositories
             _transaction?.Dispose();
             _transaction = null;
         }
+
+
 
         public void Dispose()
         {

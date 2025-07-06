@@ -27,7 +27,9 @@
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card text-white bg-primary">
-                <div class="card-header">Gesamtsaldo</div>
+                <div class="card-header">
+                    <i class="fas fa-euro-sign"></i> Gesamtsaldo
+                </div>
                 <div class="card-body">
                     <h4 class="card-title">@Model.TotalBalance.ToString("C")</h4>
                 </div>
@@ -35,7 +37,9 @@
         </div>
         <div class="col-md-3">
             <div class="card text-white bg-success">
-                <div class="card-header">Anzahl Konten</div>
+                <div class="card-header">
+                    <i class="fas fa-university"></i> Anzahl Konten
+                </div>
                 <div class="card-body">
                     <h4 class="card-title">@Model.TotalAccounts</h4>
                 </div>
@@ -43,7 +47,9 @@
         </div>
         <div class="col-md-3">
             <div class="card text-white bg-info">
-                <div class="card-header">Transaktionen (Monat)</div>
+                <div class="card-header">
+                    <i class="fas fa-exchange-alt"></i> Transaktionen (Monat)
+                </div>
                 <div class="card-body">
                     <h4 class="card-title">@Model.TransactionsThisMonth</h4>
                 </div>
@@ -51,158 +57,53 @@
         </div>
         <div class="col-md-3">
             <div class="card text-white bg-warning">
-                <div class="card-header">Aktionen</div>
+                <div class="card-header">
+                    <i class="fas fa-tools"></i> Aktionen
+                </div>
                 <div class="card-body">
-                    <a href="#" class="btn btn-light btn-sm">Neue Transaktion</a>
+                    <a href="#" class="btn btn-light btn-sm">
+                        <i class="fas fa-plus"></i> Neue Transaktion
+                    </a>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="row">
-        <!-- Konten-Übersicht -->
+        <!-- Bankkonten-Grid (Partial View) -->
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5>Ihre Bankkonten</h5>
-                    <a href="#" class="btn btn-outline-primary btn-sm">Alle Transaktionen</a>
+                    <h5>
+                        <i class="fas fa-university"></i> Ihre Bankkonten
+                    </h5>
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-list"></i> Alle Transaktionen
+                    </a>
                 </div>
                 <div class="card-body">
-                    @if (Model.BankAccounts.Any())
-                    {
-                        @Html.DevExpress().GridView(settings =>
-                        {
-                            settings.Name = "AccountsGrid";
-                            settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
-
-                            // Spalten definieren
-                            settings.Columns.Add(column =>
-                            {
-                                column.FieldName = "IBAN";
-                                column.Caption = "IBAN";
-                                column.Width = System.Web.UI.WebControls.Unit.Percentage(25);
-                            });
-
-                            settings.Columns.Add(column =>
-                            {
-                                column.FieldName = "Kontoinhaber";
-                                column.Caption = "Kontoinhaber";
-                                column.Width = System.Web.UI.WebControls.Unit.Percentage(25);
-                            });
-
-                            settings.Columns.Add(column =>
-                            {
-                                column.FieldName = "Kontotyp";
-                                column.Caption = "Kontotyp";
-                                column.Width = System.Web.UI.WebControls.Unit.Percentage(15);
-                            });
-
-                            settings.Columns.Add(column =>
-                            {
-                                column.FieldName = "AktuellerSaldo";
-                                column.Caption = "Kontostand";
-                                column.Width = System.Web.UI.WebControls.Unit.Percentage(20);
-                                column.PropertiesEdit.DisplayFormatString = "c";
-                                column.CellStyle.HorizontalAlign = System.Web.UI.WebControls.HorizontalAlign.Right;
-                            });
-
-                            settings.Columns.Add(column =>
-                            {
-                                column.Caption = "Aktionen";
-                                column.Width = System.Web.UI.WebControls.Unit.Percentage(15);
-                                column.SetDataItemTemplateContent(container =>
-                                {
-                                    var accountId = DataBinder.Eval(container.DataItem, "Id");
-                                    ViewContext.Writer.Write($"<a href='#' class='btn btn-sm btn-outline-primary'>Details</a>");
-                                });
-                            });
-
-                            // Grid-Einstellungen
-                            settings.SettingsPager.Visible = false;
-                            settings.Settings.ShowFilterRow = false;
-                            settings.Settings.ShowGroupPanel = false;
-                            settings.SettingsBehavior.AllowSelectByRowClick = true;
-
-                            // Styling
-                            settings.Styles.Header.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
-                            settings.Styles.Header.ForeColor = System.Drawing.Color.White;
-                            settings.Styles.AlternatingRow.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
-
-                        }).Bind(Model.BankAccounts).GetHtml()
-                    }
-                    else
-                    {
-                        <p class="text-muted">Keine Bankkonten gefunden.</p>
-                    }
+                    @* Hier wird die Partial View geladen *@
+                    @Html.Action("BankkontenGridPartial", "Banking")
                 </div>
             </div>
         </div>
 
-        <!-- Letzte Transaktionen -->
+        <!-- Transaktionen-Grid (Partial View) -->
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header">
-                    <h5>Letzte Transaktionen</h5>
+                    <h5>
+                        <i class="fas fa-history"></i> Letzte Transaktionen
+                    </h5>
                 </div>
                 <div class="card-body">
-                    @if (Model.RecentTransactions.Any())
-                    {
-                        @Html.DevExpress().GridView(settings =>
-                        {
-                            settings.Name = "RecentTransactionsGrid";
-                            settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
-
-                            settings.Columns.Add(column =>
-                            {
-                                column.FieldName = "Buchungsdatum";
-                                column.Caption = "Datum";
-                                column.Width = System.Web.UI.WebControls.Unit.Percentage(30);
-                                column.PropertiesEdit.DisplayFormatString = "dd.MM.yy";
-                            });
-
-                            settings.Columns.Add(column =>
-                            {
-                                column.FieldName = "Betrag";
-                                column.Caption = "Betrag";
-                                column.Width = System.Web.UI.WebControls.Unit.Percentage(35);
-                                column.PropertiesEdit.DisplayFormatString = "c";
-                                column.CellStyle.HorizontalAlign = System.Web.UI.WebControls.HorizontalAlign.Right;
-                                column.SetDataItemTemplateContent(container =>
-                                {
-                                    var amount = (decimal)DataBinder.Eval(container.DataItem, "Betrag");
-                                    var cssClass = amount >= 0 ? "text-success" : "text-danger";
-                                    ViewContext.Writer.Write($"<span class='{cssClass}'>{amount:C}</span>");
-                                });
-                            });
-
-                            settings.Columns.Add(column =>
-                            {
-                                column.FieldName = "Verwendungszweck";
-                                column.Caption = "Zweck";
-                                column.Width = System.Web.UI.WebControls.Unit.Percentage(35);
-                                column.SetDataItemTemplateContent(container =>
-                                {
-                                    var description = DataBinder.Eval(container.DataItem, "Verwendungszweck")?.ToString() ?? "";
-                                    if (description.Length > 15)
-                                        description = description.Substring(0, 15) + "...";
-                                    ViewContext.Writer.Write(description);
-                                });
-                            });
-
-                            settings.SettingsPager.Visible = false;
-                            settings.Settings.ShowFilterRow = false;
-                            settings.Settings.ShowGroupPanel = false;
-                            settings.Settings.ShowColumnHeaders = true;
-
-                        }).Bind(Model.RecentTransactions).GetHtml()
-                    }
-                    else
-                    {
-                        <p class="text-muted">Keine Transaktionen vorhanden.</p>
-                    }
+                    @* Hier wird die Partial View geladen *@
+                    @Html.Action("TransaktionenGridPartial", "Banking")
 
                     <div class="mt-3">
-                        <a href="#" class="btn btn-outline-primary btn-sm btn-block">Alle Transaktionen anzeigen</a>
+                        <a href="#" class="btn btn-outline-primary btn-sm btn-block">
+                            Alle Transaktionen anzeigen
+                        </a>
                     </div>
                 </div>
             </div>
@@ -213,11 +114,16 @@
 <style>
     .card {
         margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: box-shadow 0.3s ease;
     }
 
+        .card:hover {
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
     .card-header {
-        background-color: #f8f9fa;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         border-bottom: 1px solid #dee2e6;
     }
 

@@ -1,0 +1,142 @@
+﻿@model List<MyBankingApp.Data.Entitites.Bankkonto>
+
+@if (Model != null && Model.Any())
+{
+    @Html.DevExpress().GridView(settings =>
+        {
+            settings.Name = "BankkontenGrid";
+            settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+
+            // WICHTIG: Callback-Routes definieren
+            settings.CallbackRouteValues = new { Controller = "Banking", Action = "BankkontenGridCallback" };
+
+            // Erweiterte Features aktivieren
+            settings.Settings.ShowGroupPanel = true;
+            settings.SettingsBehavior.AllowGroup = true;
+            settings.SettingsBehavior.AllowSort = true;
+            settings.Settings.ShowFilterRow = true;
+            settings.Settings.ShowFilterRowMenu = true;
+
+            // Spalten definieren
+
+            // Bank-Spalte für Grouping
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Bankname";
+                column.Caption = "Bank";
+                column.Width = System.Web.UI.WebControls.Unit.Percentage(15);
+                // Standardmäßig nach Bank gruppieren
+                column.GroupIndex = 0;
+                column.SortOrder = DevExpress.Data.ColumnSortOrder.Ascending;
+            });
+
+            // IBAN
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "IBAN";
+                column.Caption = "IBAN";
+                column.Width = System.Web.UI.WebControls.Unit.Percentage(25);
+            });
+
+            // Kontoinhaber
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Kontoinhaber";
+                column.Caption = "Kontoinhaber";
+                column.Width = System.Web.UI.WebControls.Unit.Percentage(20);
+            });
+
+            // Kontotyp
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Kontotyp";
+                column.Caption = "Kontotyp";
+                column.Width = System.Web.UI.WebControls.Unit.Percentage(15);
+            });
+
+            // Saldo mit Farb-Coding
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "AktuellerSaldo";
+                column.Caption = "Saldo";
+                column.Width = System.Web.UI.WebControls.Unit.Percentage(15);
+                column.PropertiesEdit.DisplayFormatString = "c";
+                column.CellStyle.HorizontalAlign = System.Web.UI.WebControls.HorizontalAlign.Right;
+                column.SetDataItemTemplateContent(container =>
+                {
+                    var saldo = (decimal)DataBinder.Eval(container.DataItem, "AktuellerSaldo");
+                    var cssClass = saldo >= 0 ? "text-success" : "text-danger";
+                    var icon = saldo >= 0 ? "▲" : "▼";
+                    ViewContext.Writer.Write($"<span class='{cssClass}'>{icon} {saldo:C}</span>");
+                });
+            });
+
+            // Aktionen
+            settings.Columns.Add(column =>
+            {
+                column.Caption = "Aktionen";
+                column.Width = System.Web.UI.WebControls.Unit.Percentage(10);
+                column.SetDataItemTemplateContent(container =>
+                {
+                    var accountId = DataBinder.Eval(container.DataItem, "Id");
+                    ViewContext.Writer.Write($@"
+        <div class='btn-group btn-group-sm'>
+            <a href='#' class='btn btn-outline-primary btn-sm' title='Details'>
+                <i class='fas fa-eye'></i>
+            </a>
+            <a href='#' class='btn btn-outline-info btn-sm' title='Transaktionen'>
+                <i class='fas fa-list'></i>
+            </a>
+        </div>
+    ");
+                });
+            });
+
+            // Grid-Einstellungen
+            settings.SettingsPager.Visible = true;
+            settings.SettingsPager.PageSize = 10;
+            settings.SettingsBehavior.AllowSelectByRowClick = true;
+
+            // Styling
+            settings.Styles.Header.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
+            settings.Styles.Header.ForeColor = System.Drawing.Color.White;
+            settings.Styles.Header.Font.Bold = true;
+
+            settings.Styles.AlternatingRow.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
+
+            settings.Styles.GroupRow.BackColor = System.Drawing.Color.FromArgb(233, 236, 239);
+            settings.Styles.GroupRow.Font.Bold = true;
+
+        }).Bind(Model).GetHtml()
+}
+else
+{
+    <div class="text-center py-4">
+        <i class="fas fa-university fa-3x text-muted mb-3"></i>
+        <p class="text-muted">Keine Bankkonten gefunden.</p>
+    </div>
+}
+
+<style>
+    /* Grid-spezifische Styles */
+    .dxgvGroupRow {
+        background-color: #e9ecef !important;
+        font-weight: bold !important;
+    }
+
+    .dxgvGroupPanel {
+        background-color: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 4px !important;
+        padding: 10px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .text-success {
+        color: #28a745 !important;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+</style>

@@ -194,6 +194,8 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Banking\_BankkontenGrid.cshtml" />
+    <Content Include="Views\Banking\_TransaktionenGrid.cshtml" />
     <None Include="Web.Debug.config" />
     <None Include="Web.Release.config" />
   </ItemGroup>
@@ -210,9 +212,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ViewModels\ContactVM.cs" />
-    <Compile Include="ViewModels\CreateTransactionVM.cs" />
     <Compile Include="ViewModels\DashboardVM.cs" />
-    <Compile Include="ViewModels\TransactionListVM.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

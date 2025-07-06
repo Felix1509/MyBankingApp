@@ -6,7 +6,7 @@ namespace MyBankingApp.Data.Interfaces
 {
     public interface IBankingRepository
     {
-        // Bankkonto operations
+        // Repository properties
         IRepository<Bankkonto> Bankkonten { get; }
         IRepository<Transaktion> Transaktionen { get; }
         IRepository<Benutzer> Benutzer { get; }
@@ -19,6 +19,10 @@ namespace MyBankingApp.Data.Interfaces
         List<Bankkonto> GetBankkontenForBenutzer(Guid benutzerId);
         List<Transaktion> GetTransaktionenForBankkonto(Guid bankkontoId, int skip = 0, int take = 20);
         List<Transaktion> GetRecentTransaktionen(int count = 10);
+
+        // NEUE METHODE hinzufügen:
+        List<Transaktion> GetRecentTransaktionenWithBankInfo(int count = 10);
+
         decimal GetGesamtsaldoForBenutzer(Guid benutzerId);
 
         // Unit of Work pattern

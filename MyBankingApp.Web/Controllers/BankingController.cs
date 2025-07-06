@@ -12,7 +12,6 @@ namespace MyBankingApp.Controllers
     {
         private readonly IBankingRepository _repository;
 
-        // Dependency Injection über Constructor
         public BankingController(IBankingRepository repository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
@@ -25,7 +24,6 @@ namespace MyBankingApp.Controllers
 
             try
             {
-                // Temporär: Ersten Benutzer für Demo verwenden
                 var firstUser = _repository.Benutzer.FirstOrDefault(b => b.Benutzername == "Felix");
                 if (firstUser == null)
                 {
@@ -33,16 +31,9 @@ namespace MyBankingApp.Controllers
                     return View(dashboardVM);
                 }
 
-                // Bankkonten für Benutzer laden
-                var bankAccounts = _repository.GetBankkontenForBenutzer(firstUser.Id);
-
                 // Dashboard-Daten zusammenstellen
-                dashboardVM.BankAccounts = bankAccounts;
                 dashboardVM.TotalBalance = _repository.GetGesamtsaldoForBenutzer(firstUser.Id);
-                dashboardVM.TotalAccounts = bankAccounts.Count;
-
-                // Letzte Transaktionen
-                dashboardVM.RecentTransactions = _repository.GetRecentTransaktionen(10);
+                dashboardVM.TotalAccounts = _repository.GetBankkontenForBenutzer(firstUser.Id).Count;
 
                 // Transaktionen diesen Monat
                 var currentMonth = DateTime.Now.Month;
@@ -56,213 +47,86 @@ namespace MyBankingApp.Controllers
             catch (Exception ex)
             {
                 ViewBag.ErrorMessage = "Fehler beim Laden der Dashboard-Daten: " + ex.Message;
-                dashboardVM.BankAccounts = new List<Bankkonto>();
-                dashboardVM.RecentTransactions = new List<Transaktion>();
             }
 
             return View(dashboardVM);
         }
 
-        // GET: Banking/Transactions - Tabellen-Ansicht aller Transaktionen
-        public ActionResult Transactions(Guid? accountId = null, int page = 1, int pageSize = 20)
-        {
-            var transactionListVM = new TransactionListVM
-            {
-                PageNumber = page,
-                PageSize = pageSize
-            };
-
-            try
-            {
-                // Base Query für Transaktionen
-                var query = _repository.Transaktionen.GetAll();
-
-                // Filter nach Konto, falls angegeben
-                if (accountId.HasValue)
-                {
-                    query = query.Where(t => t.BankkontoId == accountId.Value);
-
-                    var account = _repository.Bankkonten.GetById(accountId.Value);
-                    if (account != null)
-                    {
-                        transactionListVM.AccountId = accountId;
-                        transactionListVM.AccountNumber = account.IBAN;
-                        transactionListVM.AccountHolder = account.Kontoinhaber;
-                        transactionListVM.CurrentBalance = account.AktuellerSaldo;
-                    }
-                }
-
-                // Gesamtanzahl für Paging
-                transactionListVM.TotalTransactions = query.Count();
-                transactionListVM.TotalPages = (int)Math.Ceiling((double)transactionListVM.TotalTransactions / pageSize);
-
-                // Paging anwenden
-                transactionListVM.Transactions = query
-                    .OrderByDescending(t => t.Buchungsdatum)
-                    .Skip((page - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToList();
-
-                // Verfügbare Konten für Filter-Dropdown
-                ViewBag.AvailableAccounts = new SelectList(
-                    _repository.Bankkonten.GetAll().ToList(),
-                    "Id",
-                    "IBAN",
-                    accountId
-                );
-            }
-            catch (Exception ex)
-            {
-                ViewBag.ErrorMessage = "Fehler beim Laden der Transaktionen: " + ex.Message;
-                transactionListVM.Transactions = new List<Transaktion>();
-            }
-
-            return View(transactionListVM);
-        }
-
-        // GET: Banking/AccountDetails/5 - Details zu einem spezifischen Konto
-        public ActionResult AccountDetails(Guid id)
+        // Partial View für Bankkonten-Grid
+        public ActionResult BankkontenGridPartial()
         {
             try
             {
-                var account = _repository.Bankkonten.GetById(id);
-
-                if (account == null)
+                var firstUser = _repository.Benutzer.FirstOrDefault(b => b.Benutzername == "Felix");
+                if (firstUser == null)
                 {
-                    ViewBag.ErrorMessage = "Konto nicht gefunden.";
-                    return View("Error");
+                    return PartialView("_BankkontenGrid", new List<Bankkonto>());
                 }
 
-                // Letzte 20 Transaktionen für dieses Konto laden
-                var transactions = _repository.GetTransaktionenForBankkonto(id, 0, 20);
-
-                // Hier können Sie ein DetailViewModel erstellen, falls gewünscht
-                ViewBag.RecentTransactions = transactions;
-
-                return View(account);
+                var bankAccounts = _repository.GetBankkontenForBenutzer(firstUser.Id);
+                return PartialView("_BankkontenGrid", bankAccounts);
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMessage = "Fehler beim Laden der Kontodetails: " + ex.Message;
-                return View("Error");
+                // Log the error (in real app)
+                System.Diagnostics.Debug.WriteLine($"Error in BankkontenGridPartial: {ex.Message}");
+                return PartialView("_BankkontenGrid", new List<Bankkonto>());
             }
         }
 
-        // POST: Banking/GetTransactionsData - AJAX-Endpunkt für DevExpress GridView
-        [HttpPost]
-        public ActionResult GetTransactionsData(List<Guid> selectedAccountIds = null)
+        // Callback für Bankkonten-Grid
+        public ActionResult BankkontenGridCallback()
+        {
+            return BankkontenGridPartial(); // Gleiche Logik
+        }
+
+        // Partial View für Transaktionen-Grid
+        public ActionResult TransaktionenGridPartial()
         {
             try
             {
-                var query = _repository.Transaktionen.GetAll();
-
-                // Filter nach ausgewählten Konten
-                if (selectedAccountIds != null && selectedAccountIds.Any())
-                {
-                    query = query.Where(t => selectedAccountIds.Contains(t.BankkontoId));
-                }
-
-                var transactions = query
-                    .OrderByDescending(t => t.Buchungsdatum)
-                    .Select(t => new
-                    {
-                        TransactionId = t.Id,
-                        AccountNumber = t.Bankkonto.IBAN,
-                        AccountHolder = t.Bankkonto.Kontoinhaber,
-                        Amount = t.Betrag,
-                        Currency = t.Waehrung.ToString(),
-                        Description = t.Verwendungszweck,
-                        TransactionDate = t.Buchungsdatum,
-                        CounterParty = t.EmpfaengerName ?? t.AbsenderName,
-                        Reference = t.Verwendungszweck ?? ""
-                    })
-                    .ToList();
-
-                return Json(transactions);
+                // KORRIGIERT: Verwende die neue Methode mit explizitem Include
+                var recentTransactions = _repository.GetRecentTransaktionenWithBankInfo(10);
+                return PartialView("_TransaktionenGrid", recentTransactions);
             }
             catch (Exception ex)
             {
-                return Json(new { error = ex.Message });
+                // Log the error (in real app)
+                System.Diagnostics.Debug.WriteLine($"Error in TransaktionenGridPartial: {ex.Message}");
+                return PartialView("_TransaktionenGrid", new List<Transaktion>());
             }
         }
 
-        // GET: Banking/CreateTransaction - Neue Transaktion erstellen
-        public ActionResult CreateTransaction()
+        // Callback für Transaktionen-Grid
+        public ActionResult TransaktionenGridCallback()
         {
-            var createTransactionVM = new CreateTransactionVM();
+            return TransaktionenGridPartial(); // Gleiche Logik
+        }
 
+        // DEBUGGING: Separate Action zum Testen
+        public ActionResult TestTransaktionen()
+        {
             try
             {
-                createTransactionVM.AvailableAccounts = _repository.Bankkonten
-                    .GetAll()
-                    .OrderBy(ba => ba.IBAN)
-                    .ToList();
+                var transactions = _repository.GetRecentTransaktionen(5);
+                var result = transactions.Select(t => new
+                {
+                    Id = t.Id,
+                    Datum = t.Buchungsdatum,
+                    Betrag = t.Betrag,
+                    Zweck = t.Verwendungszweck,
+                    BankName = t.Bankkonto?.Bankname ?? "NULL",
+                    HasBankkonto = t.Bankkonto != null
+                }).ToList();
+
+                return Json(result, JsonRequestBehavior.AllowGet);
             }
             catch (Exception ex)
             {
-                ViewBag.ErrorMessage = "Fehler beim Laden der Konten: " + ex.Message;
-                createTransactionVM.AvailableAccounts = new List<Bankkonto>();
+                return Json(new { error = ex.Message }, JsonRequestBehavior.AllowGet);
             }
-
-            return View(createTransactionVM);
         }
 
-        // POST: Banking/CreateTransaction
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult CreateTransaction(CreateTransactionVM model)
-        {
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var account = _repository.Bankkonten.GetById(model.FromAccountId);
-                    if (account == null)
-                    {
-                        ModelState.AddModelError("", "Konto nicht gefunden.");
-                        model.AvailableAccounts = _repository.Bankkonten.GetAll().ToList();
-                        return View(model);
-                    }
-
-                    // Neue Transaktion erstellen
-                    var transaction = new Transaktion
-                    {
-                        Id = Guid.NewGuid(),
-                        BankkontoId = model.FromAccountId,
-                        Betrag = model.IsWithdrawal ? -model.Amount : model.Amount,
-                        Buchungsdatum = DateTime.Now,
-                        ValutaDatum = DateTime.Now,
-                        Waehrung = account.Waehrung, // Währung vom Konto übernehmen
-                        Verwendungszweck = model.Description,
-                        EmpfaengerName = model.CounterParty,
-                        EmpfaengerIBAN = model.CounterPartyIBAN,
-                        AbsenderName = account.Kontoinhaber,
-                        AbsenderIBAN = account.IBAN,
-                        Kategorie = model.Category ?? "Allgemein"
-                    };
-
-                    // Kontostand aktualisieren
-                    account.AktuellerSaldo += transaction.Betrag;
-
-                    _repository.Transaktionen.Add(transaction);
-                    _repository.Bankkonten.Update(account);
-                    _repository.SaveChanges();
-
-                    TempData["SuccessMessage"] = "Transaktion erfolgreich erstellt!";
-                    return RedirectToAction("Index");
-                }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", "Fehler beim Erstellen der Transaktion: " + ex.Message);
-                }
-            }
-
-            // Bei Fehlern: Dropdown neu laden
-            model.AvailableAccounts = _repository.Bankkonten.GetAll().ToList();
-            return View(model);
-        }
-
-        // Hilfsmethoden
         private string GetWelcomeMessage()
         {
             var hour = DateTime.Now.Hour;
