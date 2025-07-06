@@ -1,0 +1,216 @@
+﻿@model List<MyBankingApp.Data.Entitites.Transaktion>
+
+@if (Model != null && Model.Any())
+{
+    @Html.DevExpress().GridView(settings =>
+        {
+            settings.Name = "AllTransactionsGrid";
+            settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+
+            // Callback Routes
+            settings.CallbackRouteValues = new { Controller = "Banking", Action = "TransactionsGridCallback" };
+
+            // Features
+            settings.Settings.ShowGroupPanel = true;
+            settings.Settings.ShowFilterRow = true;
+            settings.Settings.ShowFooter = true;
+            settings.SettingsBehavior.AllowGroup = true;
+            settings.SettingsBehavior.AllowSort = true;
+            settings.SettingsBehavior.AllowFocusedRow = true;
+
+            // Paging
+            settings.SettingsPager.Visible = true;
+            settings.SettingsPager.PageSize = 20;
+            settings.SettingsPager.PageSizeItemSettings.Visible = true;
+            settings.SettingsPager.PageSizeItemSettings.Items = new string[] { "10", "20", "50", "100" };
+
+            // Export
+            settings.SettingsExport.EnableClientSideExportAPI = true;
+            settings.SettingsExport.ExcelExportMode = DevExpress.Export.ExportType.WYSIWYG;
+
+            // Spalten
+
+            // Datum
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Buchungsdatum";
+                column.Caption = "Buchungsdatum";
+                column.Width = System.Web.UI.WebControls.Unit.Pixel(120);
+                column.PropertiesEdit.DisplayFormatString = "dd.MM.yyyy";
+                column.SortOrder = DevExpress.Data.ColumnSortOrder.Descending;
+            });
+
+            // Valuta
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "ValutaDatum";
+                column.Caption = "Valuta";
+                column.Width = System.Web.UI.WebControls.Unit.Pixel(100);
+                column.PropertiesEdit.DisplayFormatString = "dd.MM.yyyy";
+            });
+
+            // Bank/Konto
+            settings.Columns.Add(column =>
+            {
+                column.Caption = "Konto";
+                column.Width = System.Web.UI.WebControls.Unit.Pixel(150);
+                column.SetDataItemTemplateContent(c =>
+                {
+                    var bankkonto = DataBinder.Eval(c.DataItem, "Bankkonto");
+                    if (bankkonto != null)
+                    {
+                        var bankname = DataBinder.Eval(bankkonto, "Bankname")?.ToString() ?? "";
+                        var kontoinhaber = DataBinder.Eval(bankkonto, "Kontoinhaber")?.ToString() ?? "";
+                        Html.ViewContext.Writer.Write(string.Format("<strong>{0}</strong><br/><small>{1}</small>", bankname, kontoinhaber));
+                    }
+                });
+            });
+
+            // Verwendungszweck
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Verwendungszweck";
+                column.Caption = "Verwendungszweck";
+                column.Width = System.Web.UI.WebControls.Unit.Percentage(25);
+            });
+
+            // Empfänger/Absender
+            settings.Columns.Add(column =>
+            {
+                column.Caption = "Empfänger/Absender";
+                column.Width = System.Web.UI.WebControls.Unit.Percentage(20);
+                column.SetDataItemTemplateContent(c =>
+                {
+                    var betrag = (decimal)DataBinder.Eval(c.DataItem, "Betrag");
+                    if (betrag >= 0)
+                    {
+                        var absender = DataBinder.Eval(c.DataItem, "AbsenderName")?.ToString() ?? "";
+                        Html.ViewContext.Writer.Write(string.Format("<span style='color: #10b981;'>Von: {0}</span>", absender));
+                    }
+                    else
+                    {
+                        var empfaenger = DataBinder.Eval(c.DataItem, "EmpfaengerName")?.ToString() ?? "";
+                        Html.ViewContext.Writer.Write(string.Format("<span style='color: #ef4444;'>An: {0}</span>", empfaenger));
+                    }
+                });
+            });
+
+            // IBAN
+            settings.Columns.Add(column =>
+            {
+                column.Caption = "IBAN";
+                column.Width = System.Web.UI.WebControls.Unit.Pixel(200);
+                column.SetDataItemTemplateContent(c =>
+                {
+                    var betrag = (decimal)DataBinder.Eval(c.DataItem, "Betrag");
+                    var iban = betrag >= 0
+                        ? DataBinder.Eval(c.DataItem, "AbsenderIBAN")?.ToString() ?? ""
+                        : DataBinder.Eval(c.DataItem, "EmpfaengerIBAN")?.ToString() ?? "";
+                    Html.ViewContext.Writer.Write(string.Format("<small>{0}</small>", iban));
+                });
+            });
+
+            // Kategorie
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Kategorie";
+                column.Caption = "Kategorie";
+                column.Width = System.Web.UI.WebControls.Unit.Pixel(120);
+            });
+
+            // Währung
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Waehrung";
+                column.Caption = "Währung";
+                column.Width = System.Web.UI.WebControls.Unit.Pixel(80);
+            });
+
+            // Betrag
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Betrag";
+                column.Caption = "Betrag";
+                column.Width = System.Web.UI.WebControls.Unit.Pixel(120);
+                column.PropertiesEdit.DisplayFormatString = "C";
+
+                column.SetDataItemTemplateContent(c =>
+                {
+                    var betrag = (decimal)DataBinder.Eval(c.DataItem, "Betrag");
+                    var cssClass = betrag >= 0 ? "text-success" : "text-danger";
+                    var icon = betrag >= 0 ? "▼" : "▲";
+                    Html.ViewContext.Writer.Write(string.Format("<strong class='{0}'>{1} {2:C}</strong>", cssClass, icon, Math.Abs(betrag)));
+                });
+
+                // Summen
+                settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Sum, "Betrag").DisplayFormat = "Summe: {0:C}";
+                settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Count, "Betrag").DisplayFormat = "Anzahl: {0}";
+            });
+
+            // Toolbar
+            settings.Toolbars.Add(toolbar =>
+            {
+                toolbar.Position = GridToolbarPosition.Top;
+                toolbar.ItemAlign = GridToolbarItemAlign.Right;
+
+                toolbar.Items.Add(GridViewToolbarCommand.ExportToXls);
+                toolbar.Items.Add(GridViewToolbarCommand.ExportToPdf);
+                toolbar.Items.Add(GridViewToolbarCommand.ExportToCsv);
+
+                toolbar.Items.Add(GridViewToolbarCommand.ShowGroupPanel);
+                toolbar.Items.Add(GridViewToolbarCommand.ShowFilterRow);
+            });
+
+            // Styling
+            settings.Styles.Header.BackColor = System.Drawing.Color.FromArgb(249, 250, 251);
+            settings.Styles.Header.Font.Bold = true;
+            settings.Styles.Header.Border.BorderColor = System.Drawing.Color.FromArgb(229, 231, 235);
+
+            settings.Styles.GroupRow.Font.Bold = true;
+            settings.Styles.GroupRow.BackColor = System.Drawing.Color.FromArgb(243, 244, 246);
+
+            settings.Styles.Footer.Font.Bold = true;
+            settings.Styles.Footer.BackColor = System.Drawing.Color.FromArgb(249, 250, 251);
+
+            settings.Styles.AlternatingRow.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
+
+            // Client-Side Events
+            settings.ClientSideEvents.BeginCallback = "function(s, e) { document.getElementById('loadingOverlay').style.display = 'flex'; }";
+            settings.ClientSideEvents.EndCallback = "function(s, e) { document.getElementById('loadingOverlay').style.display = 'none'; }";
+
+        }).Bind(Model).GetHtml()
+}
+else
+{
+    <div style="text-align: center; padding: 60px; color: #6b7280;">
+        <i class="fas fa-search fa-4x" style="color: #e5e7eb; margin-bottom: 20px; display: block;"></i>
+        <h3>Keine Transaktionen gefunden</h3>
+        <p>Wählen Sie mindestens ein Konto aus, um Transaktionen anzuzeigen.</p>
+    </div>
+}
+
+<style type="text/css">
+    .text-success {
+        color: #10b981 !important;
+    }
+
+    .text-danger {
+        color: #ef4444 !important;
+    }
+
+    .dxgvControl {
+        border: none !important;
+    }
+
+    .dxgvHeader {
+        background: #f7fafc !important;
+        text-transform: uppercase;
+        font-size: 0.75rem !important;
+        letter-spacing: 0.05em;
+        color: #6b7280 !important;
+    }
+
+    .dxgvDataRow:hover {
+        background-color: #f7fafc !important;
+    }
+</style>

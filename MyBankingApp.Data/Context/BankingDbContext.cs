@@ -141,10 +141,10 @@ namespace MyBankingApp.Data.Context
                     {
                         Konto = bankkonto,
                         Benutzer = myUser,
-                        Zugriffslebel = (Kontozugriffelevel)(i % 6)
+                        Zugriffslevel = (Kontozugriffelevel)(i % 6)
                     };
                     i++;
-                    Kontozugriffe.Add(Zugriiff);
+                    if (Zugriiff.Zugriffslevel != Kontozugriffelevel.Keiner) Kontozugriffe.Add(Zugriiff);
                 }
                 SaveChanges();
             }
@@ -173,7 +173,7 @@ namespace MyBankingApp.Data.Context
                             Id = Guid.NewGuid(),
                             Buchungsdatum = DateTime.Now.AddDays(-i).AddMonths(-i),
                             ValutaDatum = DateTime.Now.AddDays(-(i - 1)).AddMonths(-i),
-                            Betrag = Convert.ToDecimal(zaehler.ToString() + i.ToString() + "," + i.ToString()),
+                            Betrag = Convert.ToDecimal(zaehler.ToString() + i.ToString() + "," + i.ToString()) * (int)Math.Pow(-1, i),
                             Waehrung = (Waehrung)(i % 10),
                             EmpfaengerName = empfaengerKonto.Kontoinhaber,
                             EmpfaengerIBAN = empfaengerKonto.IBAN,

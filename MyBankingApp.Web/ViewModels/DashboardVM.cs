@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using MyBankingApp.Data.Context;
 using MyBankingApp.Data.Entitites;
+using MyBankingApp.Data.Repositories;
 
 namespace MyBankingApp.Web.ViewModels
 {
@@ -11,7 +13,7 @@ namespace MyBankingApp.Web.ViewModels
         public int TotalAccounts { get; set; }
         public int TransactionsThisMonth { get; set; }
         public string WelcomeMessage { get; set; }
-
+       
         public DashboardVM()
         {
             BankAccounts = new List<Bankkonto>();

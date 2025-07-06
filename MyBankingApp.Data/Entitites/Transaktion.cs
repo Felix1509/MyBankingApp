@@ -1,6 +1,7 @@
 ﻿using MyBankingApp.Common.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,11 +24,22 @@ namespace MyBankingApp.Data.Entitites
         public ICollection<VerkTransaktionGV> VerkTransaktionGV { get; set; }
         public Guid BankkontoId { get; set; } // Foreign key for the associated Bankkonto
         public virtual Bankkonto Bankkonto { get; set; } // Navigation property to the associated Bankkonto
-
-        public Transaktion()
+        public bool IstGutschrift // Wichtig für anzeige
+        {
+            get
+            {
+                if (Bankkonto != null && Bankkonto.IBAN == EmpfaengerIBAN) // else muss IBAN = AbsenderIBAn sein, sonst gehört der kontoauszug nicht hier rein
+                {
+                    return true;
+                }
+                else return false;
+            }
+        }
+            public Transaktion()
         {
             Id = Guid.NewGuid();
             VerkTransaktionGV = new HashSet<VerkTransaktionGV>();
         }
+        
     }
 }

@@ -1,0 +1,50 @@
+﻿@model MyBankingApp.Web.ViewModels.DashboardVM
+
+<div class="stats-container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="stat-card stat-card-primary">
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Gesamtvermögen</div>
+                    <h2 class="stat-card-value">@Model.TotalBalance.ToString("C")</h2>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="fas fa-wallet"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-success">
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Aktive Konten</div>
+                    <h2 class="stat-card-value">@Model.TotalAccounts</h2>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-info">
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Transaktionen (Monat)</div>
+                    <h2 class="stat-card-value">@Model.TransactionsThisMonth</h2>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card stat-card-warning">
+                <div class="stat-card-content">
+                    <div class="stat-card-label">Letzte Aktivität</div>
+                    <h2 class="stat-card-value">Heute</h2>
+                </div>
+                <div class="stat-card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

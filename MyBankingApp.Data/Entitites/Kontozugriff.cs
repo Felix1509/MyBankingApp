@@ -17,6 +17,6 @@ namespace MyBankingApp.Data.Entitites
         public Guid BenutzerId { get; set; }
         public virtual Benutzer Benutzer { get; set; }
         [Required]
-        public Kontozugriffelevel Zugriffslebel { get; set; }
+        public Kontozugriffelevel Zugriffslevel { get; set; }
     }
 }

@@ -3,135 +3,35 @@
     ViewBag.Title = "Banking Dashboard";
 }
 
-<div class="container-fluid">
+<!-- Font Awesome für Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<!-- Dashboard Styles -->
+@Html.Partial("_DashboardStyles")
+
+<div class="dashboard-container">
+    <!-- Header -->
+    @Html.Partial("_DashboardHeader", Model)
+
+    <!-- Alerts -->
+    @Html.Partial("_DashboardAlerts")
+
+    <!-- Stats Cards -->
+    @Html.Partial("_DashboardStats", Model)
+
+    <!-- Main Content -->
     <div class="row">
-        <div class="col-12">
-            <h2>@Model.WelcomeMessage</h2>
-
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    @TempData["SuccessMessage"]
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
-                </div>
-            }
-
-            @if (ViewBag.ErrorMessage != null)
-            {
-                <div class="alert alert-danger">@ViewBag.ErrorMessage</div>
-            }
-        </div>
-    </div>
-
-    <!-- Statistik-Karten -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary">
-                <div class="card-header">
-                    <i class="fas fa-euro-sign"></i> Gesamtsaldo
-                </div>
-                <div class="card-body">
-                    <h4 class="card-title">@Model.TotalBalance.ToString("C")</h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success">
-                <div class="card-header">
-                    <i class="fas fa-university"></i> Anzahl Konten
-                </div>
-                <div class="card-body">
-                    <h4 class="card-title">@Model.TotalAccounts</h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-header">
-                    <i class="fas fa-exchange-alt"></i> Transaktionen (Monat)
-                </div>
-                <div class="card-body">
-                    <h4 class="card-title">@Model.TransactionsThisMonth</h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning">
-                <div class="card-header">
-                    <i class="fas fa-tools"></i> Aktionen
-                </div>
-                <div class="card-body">
-                    <a href="#" class="btn btn-light btn-sm">
-                        <i class="fas fa-plus"></i> Neue Transaktion
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <!-- Bankkonten-Grid (Partial View) -->
+        <!-- Bankkonten -->
         <div class="col-md-8">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5>
-                        <i class="fas fa-university"></i> Ihre Bankkonten
-                    </h5>
-                    <a href="#" class="btn btn-outline-primary btn-sm">
-                        <i class="fas fa-list"></i> Alle Transaktionen
-                    </a>
-                </div>
-                <div class="card-body">
-                    @* Hier wird die Partial View geladen *@
-                    @Html.Action("BankkontenGridPartial", "Banking")
-                </div>
-            </div>
+            @Html.Partial("_BankkontenCard")
         </div>
 
-        <!-- Transaktionen-Grid (Partial View) -->
+        <!-- Letzte Transaktionen -->
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5>
-                        <i class="fas fa-history"></i> Letzte Transaktionen
-                    </h5>
-                </div>
-                <div class="card-body">
-                    @* Hier wird die Partial View geladen *@
-                    @Html.Action("TransaktionenGridPartial", "Banking")
-
-                    <div class="mt-3">
-                        <a href="#" class="btn btn-outline-primary btn-sm btn-block">
-                            Alle Transaktionen anzeigen
-                        </a>
-                    </div>
-                </div>
-            </div>
+            @Html.Partial("_RecentTransactionsCard")
         </div>
     </div>
+
+    <!-- Quick Actions -->
+    @Html.Partial("_QuickActions")
 </div>
-
-<style>
-    .card {
-        margin-bottom: 20px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: box-shadow 0.3s ease;
-    }
-
-        .card:hover {
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-        }
-
-    .card-header {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border-bottom: 1px solid #dee2e6;
-    }
-
-    .text-success {
-        color: #28a745 !important;
-    }
-
-    .text-danger {
-        color: #dc3545 !important;
-    }
-</style>

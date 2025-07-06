@@ -7,27 +7,40 @@
             settings.Name = "BankkontenGrid";
             settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
 
-            // WICHTIG: Callback-Routes definieren
+            // Callback-Routes
             settings.CallbackRouteValues = new { Controller = "Banking", Action = "BankkontenGridCallback" };
 
-            // Erweiterte Features aktivieren
+            // Features aktivieren
             settings.Settings.ShowGroupPanel = true;
+            settings.Settings.ShowFilterRow = true;
+            settings.Settings.ShowFooter = true;
+
             settings.SettingsBehavior.AllowGroup = true;
             settings.SettingsBehavior.AllowSort = true;
-            settings.Settings.ShowFilterRow = true;
-            settings.Settings.ShowFilterRowMenu = true;
+            settings.SettingsBehavior.AllowFocusedRow = true;
+            settings.SettingsBehavior.AutoExpandAllGroups = true;
+
+            // Paging
+            settings.SettingsPager.Visible = true;
+            settings.SettingsPager.PageSize = 10;
+            settings.SettingsPager.PageSizeItemSettings.Visible = true;
 
             // Spalten definieren
 
-            // Bank-Spalte für Grouping
+            // Bank (Gruppiert)
             settings.Columns.Add(column =>
             {
                 column.FieldName = "Bankname";
                 column.Caption = "Bank";
-                column.Width = System.Web.UI.WebControls.Unit.Percentage(15);
-                // Standardmäßig nach Bank gruppieren
                 column.GroupIndex = 0;
                 column.SortOrder = DevExpress.Data.ColumnSortOrder.Ascending;
+            });
+
+            // Kontoinhaber
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Kontoinhaber";
+                column.Caption = "Kontoinhaber";
             });
 
             // IBAN
@@ -38,105 +51,123 @@
                 column.Width = System.Web.UI.WebControls.Unit.Percentage(25);
             });
 
-            // Kontoinhaber
-            settings.Columns.Add(column =>
-            {
-                column.FieldName = "Kontoinhaber";
-                column.Caption = "Kontoinhaber";
-                column.Width = System.Web.UI.WebControls.Unit.Percentage(20);
-            });
-
             // Kontotyp
             settings.Columns.Add(column =>
             {
                 column.FieldName = "Kontotyp";
-                column.Caption = "Kontotyp";
-                column.Width = System.Web.UI.WebControls.Unit.Percentage(15);
+                column.Caption = "Typ";
             });
 
-            // Saldo mit Farb-Coding
+            // Währung
+            settings.Columns.Add(column =>
+            {
+                column.FieldName = "Waehrung";
+                column.Caption = "Währung";
+                column.Width = System.Web.UI.WebControls.Unit.Pixel(80);
+            });
+
+            // Saldo
             settings.Columns.Add(column =>
             {
                 column.FieldName = "AktuellerSaldo";
                 column.Caption = "Saldo";
-                column.Width = System.Web.UI.WebControls.Unit.Percentage(15);
-                column.PropertiesEdit.DisplayFormatString = "c";
-                column.CellStyle.HorizontalAlign = System.Web.UI.WebControls.HorizontalAlign.Right;
-                column.SetDataItemTemplateContent(container =>
+                column.PropertiesEdit.DisplayFormatString = "C";
+
+                // DataItem Template für farbige Anzeige
+                column.SetDataItemTemplateContent(c =>
                 {
-                    var saldo = (decimal)DataBinder.Eval(container.DataItem, "AktuellerSaldo");
+                    var saldo = (decimal)DataBinder.Eval(c.DataItem, "AktuellerSaldo");
                     var cssClass = saldo >= 0 ? "text-success" : "text-danger";
-                    var icon = saldo >= 0 ? "▲" : "▼";
-                    ViewContext.Writer.Write($"<span class='{cssClass}'>{icon} {saldo:C}</span>");
+                    Html.ViewContext.Writer.Write(string.Format("<strong class='{0}'>{1:C}</strong>", cssClass, saldo));
                 });
+
+                // Footer Summary
+                settings.TotalSummary.Add(DevExpress.Data.SummaryItemType.Sum, "AktuellerSaldo").DisplayFormat = "Gesamt: {0:C}";
             });
 
             // Aktionen
             settings.Columns.Add(column =>
             {
                 column.Caption = "Aktionen";
-                column.Width = System.Web.UI.WebControls.Unit.Percentage(10);
-                column.SetDataItemTemplateContent(container =>
+                column.Width = System.Web.UI.WebControls.Unit.Pixel(100);
+                column.Settings.AllowSort = DevExpress.Utils.DefaultBoolean.False;
+                column.Settings.AllowHeaderFilter = DevExpress.Utils.DefaultBoolean.False;
+
+                column.SetDataItemTemplateContent(c =>
                 {
-                    var accountId = DataBinder.Eval(container.DataItem, "Id");
-                    ViewContext.Writer.Write($@"
-        <div class='btn-group btn-group-sm'>
-            <a href='#' class='btn btn-outline-primary btn-sm' title='Details'>
-                <i class='fas fa-eye'></i>
-            </a>
-            <a href='#' class='btn btn-outline-info btn-sm' title='Transaktionen'>
-                <i class='fas fa-list'></i>
-            </a>
-        </div>
-    ");
+                    var accountId = DataBinder.Eval(c.DataItem, "Id");
+                    Html.ViewContext.Writer.Write(
+                        "<a href='#' class='btn btn-sm btn-default' title='Details'><i class='fas fa-eye'></i></a> " +
+                        "<a href='#' class='btn btn-sm btn-default' title='Transaktionen'><i class='fas fa-list'></i></a>"
+                    );
                 });
             });
 
-            // Grid-Einstellungen
-            settings.SettingsPager.Visible = true;
-            settings.SettingsPager.PageSize = 10;
-            settings.SettingsBehavior.AllowSelectByRowClick = true;
-
             // Styling
-            settings.Styles.Header.BackColor = System.Drawing.Color.FromArgb(52, 58, 64);
-            settings.Styles.Header.ForeColor = System.Drawing.Color.White;
+            settings.Styles.Header.BackColor = System.Drawing.Color.FromArgb(249, 250, 251);
             settings.Styles.Header.Font.Bold = true;
+            settings.Styles.Header.Border.BorderColor = System.Drawing.Color.FromArgb(229, 231, 235);
+
+            settings.Styles.GroupRow.Font.Bold = true;
+            settings.Styles.GroupRow.BackColor = System.Drawing.Color.FromArgb(243, 244, 246);
+
+            settings.Styles.Footer.Font.Bold = true;
+            settings.Styles.Footer.BackColor = System.Drawing.Color.FromArgb(249, 250, 251);
 
             settings.Styles.AlternatingRow.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
-
-            settings.Styles.GroupRow.BackColor = System.Drawing.Color.FromArgb(233, 236, 239);
-            settings.Styles.GroupRow.Font.Bold = true;
 
         }).Bind(Model).GetHtml()
 }
 else
 {
-    <div class="text-center py-4">
-        <i class="fas fa-university fa-3x text-muted mb-3"></i>
-        <p class="text-muted">Keine Bankkonten gefunden.</p>
+    <div style="text-align: center; padding: 40px; color: #6b7280;">
+        <i class="fas fa-university fa-3x" style="color: #e5e7eb; margin-bottom: 20px; display: block;"></i>
+        <h4>Keine Bankkonten gefunden</h4>
+        <p>Fügen Sie Ihr erstes Bankkonto hinzu, um loszulegen.</p>
+        <a href="#" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Bankkonto hinzufügen
+        </a>
     </div>
 }
 
-<style>
-    /* Grid-spezifische Styles */
-    .dxgvGroupRow {
-        background-color: #e9ecef !important;
-        font-weight: bold !important;
-    }
-
-    .dxgvGroupPanel {
-        background-color: #f8f9fa !important;
-        border: 1px solid #dee2e6 !important;
-        border-radius: 4px !important;
-        padding: 10px !important;
-        margin-bottom: 10px !important;
-    }
-
+<style type="text/css">
     .text-success {
-        color: #28a745 !important;
+        color: #10b981 !important;
     }
 
     .text-danger {
-        color: #dc3545 !important;
+        color: #ef4444 !important;
     }
+
+    .btn {
+        padding: 4px 8px;
+        margin: 0 2px;
+        text-decoration: none;
+        border-radius: 4px;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .btn-default {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #e5e7eb;
+    }
+
+        .btn-default:hover {
+            background: #e5e7eb;
+            text-decoration: none;
+        }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+        border: 1px solid #2563eb;
+        padding: 8px 16px;
+    }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            text-decoration: none;
+        }
 </style>

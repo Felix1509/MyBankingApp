@@ -1,0 +1,40 @@
+﻿<div class="row" style="margin-top: 30px;">
+    <div class="col-md-12">
+        <div class="content-card">
+            <div class="card-header">
+                <h3>
+                    <i class="fas fa-bolt"></i>
+                    Schnellaktionen
+                </h3>
+            </div>
+            <div class="card-body" style="padding: 30px;">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <a href="@Url.Action("Transfer", "Banking")" class="quick-action-btn">
+                            <i class="fas fa-paper-plane" style="color: #667eea;"></i>
+                            <span>Überweisung</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <a href="@Url.Action("AddInvoice", "Banking")" class="quick-action-btn">
+                            <i class="fas fa-file-invoice" style="color: #48bb78;"></i>
+                            <span>Rechnung erfassen</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <a href="@Url.Action("Statement", "Banking")" class="quick-action-btn">
+                            <i class="fas fa-download" style="color: #4299e1;"></i>
+                            <span>Kontoauszug</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <a href="@Url.Action("Reports", "Banking")" class="quick-action-btn">
+                            <i class="fas fa-chart-pie" style="color: #ed8936;"></i>
+                            <span>Auswertungen</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

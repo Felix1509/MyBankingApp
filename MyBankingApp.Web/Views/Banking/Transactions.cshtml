@@ -1,0 +1,289 @@
+﻿@model MyBankingApp.Web.ViewModels.TransactionsVM
+@{
+    ViewBag.Title = "Alle Transaktionen";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style type="text/css">
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 300;
+        }
+
+    .filter-section {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-header {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e8ecf1;
+    }
+
+        .filter-header h3 {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+            .filter-header h3 i {
+                margin-right: 10px;
+                color: #667eea;
+            }
+
+    .account-filter-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 15px;
+    }
+
+    .account-filter-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        user-select: none;
+    }
+
+        .account-filter-item:hover {
+            border-color: #667eea;
+            background: #f7f9fc;
+        }
+
+        .account-filter-item.selected {
+            background: #eef2ff;
+            border-color: #667eea;
+        }
+
+    .account-checkbox {
+        margin-right: 15px;
+    }
+
+    .account-info {
+        flex: 1;
+    }
+
+    .account-name {
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 5px;
+    }
+
+    .account-iban {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .account-saldo {
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+
+    .saldo-positive {
+        color: #10b981;
+    }
+
+    .saldo-negative {
+        color: #ef4444;
+    }
+
+    .transactions-section {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 25px 30px;
+        border-bottom: 1px solid #e8ecf1;
+        background: #fafbfc;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+            .section-header h3 i {
+                margin-right: 10px;
+                color: #667eea;
+            }
+
+    .section-body {
+        padding: 0;
+    }
+
+    .btn-primary {
+        background: #667eea;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #e5e7eb;
+        border-top-color: #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1><i class="fas fa-exchange-alt"></i> Alle Transaktionen</h1>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-header">
+            <h3><i class="fas fa-filter"></i> Konten filtern</h3>
+        </div>
+        <div class="account-filter-list">
+            @foreach (var account in Model.AvailableAccounts)
+            {
+                <div class="account-filter-item @(account.IsSelected ? "selected" : "")" data-konto-id="@account.KontoId">
+                    <input type="checkbox" class="account-checkbox" @(account.IsSelected ? "checked" : "") />
+                    <div class="account-info">
+                        <div class="account-name">@account.Bezeichnung</div>
+                        <div class="account-iban">@account.IBAN</div>
+                    </div>
+                    <div class="account-saldo @(account.Saldo >= 0 ? "saldo-positive" : "saldo-negative")">
+                        @account.Saldo.ToString("C")
+                    </div>
+                </div>
+            }
+        </div>
+        <div style="margin-top: 20px; text-align: right;">
+            <button class="btn-primary" onclick="updateFilter()">
+                <i class="fas fa-sync-alt"></i> Filter anwenden
+            </button>
+        </div>
+    </div>
+
+    <!-- Transactions Grid -->
+    <div class="transactions-section">
+        <div class="section-header">
+            <h3><i class="fas fa-list"></i> Transaktionen</h3>
+            <button class="btn-primary" onclick="exportTransactions()">
+                <i class="fas fa-download"></i> Export
+            </button>
+        </div>
+        <div class="section-body" id="transactionsGridContainer">
+            @Html.Action("TransactionsGridPartial", "Banking")
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
+
+<script type="text/javascript">
+    // Account Filter Toggle
+    document.querySelectorAll('.account-filter-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            var checkbox = this.querySelector('.account-checkbox');
+            checkbox.checked = !checkbox.checked;
+            this.classList.toggle('selected');
+        });
+    });
+
+    // Update Filter
+    function updateFilter() {
+        var selectedIds = [];
+        document.querySelectorAll('.account-filter-item.selected').forEach(function(item) {
+            selectedIds.push(item.getAttribute('data-konto-id'));
+        });
+
+        // Show loading
+        document.getElementById('loadingOverlay').style.display = 'flex';
+
+        // Send AJAX request
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '@Url.Action("UpdateAccountSelection", "Banking")', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                // Reload grid
+                loadTransactionsGrid();
+            }
+        };
+        xhr.send(JSON.stringify({ selectedAccountIds: selectedIds }));
+    }
+
+    // Load Transactions Grid
+    function loadTransactionsGrid() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '@Url.Action("TransactionsGridPartial", "Banking")', true);
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('transactionsGridContainer').innerHTML = xhr.responseText;
+                // Hide loading
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        };
+        xhr.send();
+    }
+
+    // Export Transactions
+    function exportTransactions() {
+        alert('Export-Funktion kommt bald...');
+    }
+</script>
