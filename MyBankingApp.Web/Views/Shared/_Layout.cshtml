@@ -20,29 +20,40 @@
     <div class="content-wrapper">
         <div class="header">
             <h1>DevExpress ASP.NET project</h1>
-            @Html.DevExpress().Menu(settings => 
-            {
-                settings.Name = "HeaderMenu";
-                settings.ItemAutoWidth = false;
-                settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
-                settings.Styles.Style.Border.BorderWidth = System.Web.UI.WebControls.Unit.Pixel(0);
-                settings.Styles.Style.Paddings.Padding = System.Web.UI.WebControls.Unit.Pixel(0);
-                settings.Items.Add(i =>
-                {
-                     i.Text = "Home";
-                     i.NavigateUrl = Url.Action("Index", "Home");
-                });
-                settings.Items.Add(i =>
-                {
-                    i.Text = "Zum Kontaktformular";
-                    i.NavigateUrl = Url.Action("Contact", "Home");
-                });
-                settings.Items.Add(item =>
-                {
-                    item.Text = "Zum Banking";
-                    item.NavigateUrl = Url.Action("Index", "Banking");
-                });
-            }).GetHtml()
+            @Html.DevExpress().Menu(settings =>
+       {
+           settings.Name = "HeaderMenu";
+           settings.ItemAutoWidth = false;
+           settings.Width = System.Web.UI.WebControls.Unit.Percentage(100);
+           settings.Styles.Style.Border.BorderWidth = System.Web.UI.WebControls.Unit.Pixel(0);
+           settings.Styles.Style.Paddings.Padding = System.Web.UI.WebControls.Unit.Pixel(0);
+
+           settings.Items.Add(i =>
+           {
+               i.Text = "Home";
+               i.NavigateUrl = Url.Action("Index", "Home");
+           });
+           settings.Items.Add(i =>
+           {
+               i.Text = "Dashboard";
+               i.NavigateUrl = Url.Action("Index", "Dashboard");
+           });
+           settings.Items.Add(i =>
+           {
+               i.Text = "Konten";
+               i.NavigateUrl = Url.Action("Index", "BankAccount");
+           });
+           settings.Items.Add(i =>
+           {
+               i.Text = "Transaktionen";
+               i.NavigateUrl = Url.Action("Index", "Transaction");
+           });
+           settings.Items.Add(i =>
+           {
+               i.Text = "Kontakt";
+               i.NavigateUrl = Url.Action("Contact", "Home");
+           });
+       }).GetHtml()
         </div>
 
         <div class="content">

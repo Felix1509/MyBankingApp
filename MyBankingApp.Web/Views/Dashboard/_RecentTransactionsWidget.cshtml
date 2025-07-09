@@ -1,0 +1,51 @@
+﻿@model IEnumerable<MyBankingApp.Data.Entitites.Transaktion>
+
+<div style="max-height: 400px; overflow-y: auto;">
+    @if (Model != null && Model.Any())
+    {
+        <table class="table table-sm table-hover" style="margin: 0;">
+            <tbody>
+                @foreach (var transaction in Model)
+                {
+                    <tr>
+                        <td style="width: 80px;">
+                            <small class="text-muted">@transaction.Buchungsdatum.ToString("dd.MM")</small>
+                        </td>
+                        <td>
+                            <div style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
+                                @transaction.Verwendungszweck
+                            </div>
+                            <small class="text-muted">
+                                @if (transaction.IstGutschrift)
+                                {
+                                    <span>Von: @transaction.AbsenderName</span>
+                                }
+                                else
+                                {
+                                    <span>An: @transaction.EmpfaengerName</span>
+                                }
+                            </small>
+                        </td>
+                        <td style="text-align: right; width: 100px;">
+                            @if (transaction.IstGutschrift)
+                            {
+                                <strong style="color: #10b981">+@Math.Abs(transaction.Betrag).ToString("C")</strong>
+                            }
+                            else
+                            {
+                                <strong style="color: #ef4444">-@Math.Abs(transaction.Betrag).ToString("C")</strong>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div style="text-align: center; padding: 40px; color: #9ca3af;">
+            <i class="fas fa-receipt fa-3x" style="color: #e5e7eb; margin-bottom: 15px; display: block;"></i>
+            <p>Noch keine Transaktionen vorhanden</p>
+        </div>
+    }
+</div>

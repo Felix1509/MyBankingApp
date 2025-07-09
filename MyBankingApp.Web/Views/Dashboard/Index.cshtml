@@ -1,0 +1,274 @@
+﻿@model MyBankingApp.Web.ViewModels.DashboardVM
+@{
+    ViewBag.Title = "Dashboard";
+}
+
+<!-- Font Awesome für Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<!-- Dashboard Styles -->
+<style type="text/css">
+    /* Basis Styles */
+    body {
+        background-color: #f5f7fa;
+    }
+
+    .dashboard-container {
+        padding: 20px;
+    }
+
+    /* Header Section */
+    .dashboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 60%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.08);
+            transform: rotate(35deg);
+        }
+
+        .dashboard-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: -1px;
+        }
+
+        .dashboard-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+    /* Stats Cards */
+    .stats-container {
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        height: 120px;
+        margin-bottom: 20px;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+    .stat-card-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 3rem;
+        opacity: 0.2;
+    }
+
+    .stat-card-label {
+        color: #718096;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 8px;
+    }
+
+    .stat-card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a202c;
+        margin: 0;
+        line-height: 1;
+    }
+
+    /* Widget Cards */
+    .widget-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .widget-header {
+        padding: 25px 30px;
+        border-bottom: 1px solid #e8ecf1;
+        background: #fafbfc;
+    }
+
+        .widget-header h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+    .widget-body {
+        padding: 0;
+    }
+</style>
+
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <h1>@Model.WelcomeMessage</h1>
+        <p>Hier ist Ihre aktuelle Finanzübersicht</p>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    }
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-content">
+                        <div class="stat-card-label">Gesamtvermögen</div>
+                        <h2 class="stat-card-value">@Model.TotalBalance.ToString("C")</h2>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-content">
+                        <div class="stat-card-label">Aktive Konten</div>
+                        <h2 class="stat-card-value">@Model.TotalAccounts</h2>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-content">
+                        <div class="stat-card-label">Transaktionen (Monat)</div>
+                        <h2 class="stat-card-value">@Model.TransactionsThisMonth</h2>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-card-content">
+                        <div class="stat-card-label">Letzte Aktivität</div>
+                        <h2 class="stat-card-value">Heute</h2>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Widgets -->
+    <div class="row">
+        <!-- Kontoübersicht -->
+        <div class="col-md-8">
+            <div class="widget-card">
+                <div class="widget-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3><i class="fas fa-landmark"></i> Ihre Bankkonten</h3>
+                        <a href="@Url.Action("Index", "BankAccount")" class="btn btn-sm btn-primary">
+                            Alle anzeigen
+                        </a>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    @Html.Action("AccountSummaryWidget", "Dashboard")
+                </div>
+            </div>
+        </div>
+
+        <!-- Letzte Transaktionen -->
+        <div class="col-md-4">
+            <div class="widget-card">
+                <div class="widget-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3><i class="fas fa-clock"></i> Letzte Aktivitäten</h3>
+                        <a href="@Url.Action("Index", "Transaction")" class="btn btn-sm btn-light">
+                            Alle
+                        </a>
+                    </div>
+                </div>
+                <div class="widget-body" id="recentTransactionsContainer">
+                    @Html.Action("RecentTransactionsWidget", "Dashboard")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row" style="margin-top: 30px;">
+        <div class="col-md-12">
+            <div class="widget-card">
+                <div class="widget-header">
+                    <h3><i class="fas fa-bolt"></i> Schnellaktionen</h3>
+                </div>
+                <div class="widget-body" style="padding: 30px;">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <a href="@Url.Action("Create", "Transaction")" class="btn btn-lg btn-block btn-outline-primary">
+                                <i class="fas fa-paper-plane fa-2x"></i><br />
+                                Überweisung
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <a href="@Url.Action("Create", "BankAccount")" class="btn btn-lg btn-block btn-outline-success">
+                                <i class="fas fa-plus-circle fa-2x"></i><br />
+                                Konto hinzufügen
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <a href="@Url.Action("ExportCsv", "Transaction")" class="btn btn-lg btn-block btn-outline-info">
+                                <i class="fas fa-download fa-2x"></i><br />
+                                Export
+                            </a>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <a href="#" class="btn btn-lg btn-block btn-outline-warning">
+                                <i class="fas fa-chart-pie fa-2x"></i><br />
+                                Berichte
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

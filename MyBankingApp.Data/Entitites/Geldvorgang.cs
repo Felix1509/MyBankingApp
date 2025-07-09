@@ -16,7 +16,7 @@ namespace MyBankingApp.Data.Entitites
         public virtual Beleg Beleg { get; set; } // Zuordnung zum Beleg-Objekt (optional)
 
         public virtual ICollection<VerkTransaktionGV> VerkTransaktionenGV { get; set; } // Liste der Verknüpfungen zu Transaktionen
-
+        
         public Geldvorgang()
         {
             Id = Guid.NewGuid();

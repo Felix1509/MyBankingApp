@@ -1,0 +1,280 @@
+﻿@model MyBankingApp.Data.Entitites.Transaktion
+@{
+    ViewBag.Title = "Transaktionsdetails";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style type="text/css">
+    .details-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+        .details-header h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 300;
+        }
+
+    .details-card {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+    .detail-label {
+        font-weight: 600;
+        color: #6b7280;
+        width: 40%;
+    }
+
+    .detail-value {
+        color: #1f2937;
+        width: 60%;
+        text-align: right;
+    }
+
+    .amount-display {
+        font-size: 2rem;
+        font-weight: 700;
+        text-align: center;
+        padding: 30px 0;
+    }
+
+    .amount-positive {
+        color: #10b981;
+    }
+
+    .amount-negative {
+        color: #ef4444;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .status-success {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .back-link {
+        color: #667eea;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+    .action-buttons {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .btn-action {
+        padding: 10px 20px;
+        margin: 0 5px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-print {
+        background: #6b7280;
+        color: white;
+    }
+
+        .btn-print:hover {
+            background: #4b5563;
+        }
+
+    .btn-category {
+        background: #3b82f6;
+        color: white;
+    }
+
+        .btn-category:hover {
+            background: #2563eb;
+        }
+</style>
+
+<div class="container">
+    <a href="@Url.Action("Index", "Transaction")" class="back-link">
+        <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Zurück zur Übersicht
+    </a>
+
+    <div class="details-header">
+        <h1><i class="fas fa-receipt"></i> Transaktionsdetails</h1>
+    </div>
+
+    @if (Model != null)
+    {
+        <div class="details-card">
+            <div class="amount-display @(Model.IstGutschrift ? "amount-positive" : "amount-negative")">
+                @if (Model.IstGutschrift)
+                {
+                    <span>+@Math.Abs(Model.Betrag).ToString("C")</span>
+                }
+                else
+                {
+                    <span>-@Math.Abs(Model.Betrag).ToString("C")</span>
+                }
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Status</div>
+                <div class="detail-value">
+                    <span class="status-badge status-success">Gebucht</span>
+                </div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Transaktions-ID</div>
+                <div class="detail-value">@Model.Id</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Buchungsdatum</div>
+                <div class="detail-value">@Model.Buchungsdatum.ToString("dd.MM.yyyy")</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Valutadatum</div>
+                <div class="detail-value">@Model.ValutaDatum.ToString("dd.MM.yyyy")</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Währung</div>
+                <div class="detail-value">@Model.Waehrung</div>
+            </div>
+
+            <div class="detail-row">
+                <div class="detail-label">Kategorie</div>
+                <div class="detail-value">@(string.IsNullOrEmpty(Model.Kategorie) ? "Nicht kategorisiert" : Model.Kategorie)</div>
+            </div>
+        </div>
+
+        <div class="details-card">
+            <h3 style="margin-top: 0; margin-bottom: 20px; color: #1f2937;">
+                <i class="fas fa-exchange-alt"></i> Beteiligte Konten
+            </h3>
+
+            @if (Model.IstGutschrift)
+            {
+                <div class="detail-row">
+                    <div class="detail-label">Von (Absender)</div>
+                    <div class="detail-value">
+                        <strong>@Model.AbsenderName</strong><br />
+                        <small>@Model.AbsenderIBAN</small>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">An (Empfänger)</div>
+                    <div class="detail-value">
+                        <strong>@Model.EmpfaengerName</strong><br />
+                        <small>@Model.EmpfaengerIBAN</small><br />
+                        <span style="color: #667eea;">@Model.Bankkonto?.Bankname</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="detail-row">
+                    <div class="detail-label">Von (Absender)</div>
+                    <div class="detail-value">
+                        <strong>@Model.AbsenderName</strong><br />
+                        <small>@Model.AbsenderIBAN</small><br />
+                        <span style="color: #667eea;">@Model.Bankkonto?.Bankname</span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">An (Empfänger)</div>
+                    <div class="detail-value">
+                        <strong>@Model.EmpfaengerName</strong><br />
+                        <small>@Model.EmpfaengerIBAN</small>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="details-card">
+            <h3 style="margin-top: 0; margin-bottom: 20px; color: #1f2937;">
+                <i class="fas fa-comment"></i> Verwendungszweck
+            </h3>
+            <p style="background: #f9fafb; padding: 15px; border-radius: 8px; margin: 0;">
+                @Model.Verwendungszweck
+            </p>
+        </div>
+
+        @if (Model.VerkTransaktionGV != null && Model.VerkTransaktionGV.Any())
+        {
+            <div class="details-card">
+                <h3 style="margin-top: 0; margin-bottom: 20px; color: #1f2937;">
+                    <i class="fas fa-link"></i> Verknüpfte Geldvorgänge
+                </h3>
+                @foreach (var verk in Model.VerkTransaktionGV)
+                {
+                    <div class="detail-row">
+                        <div class="detail-label">@verk.Geldvorgang?.Bezeichnung</div>
+                        <div class="detail-value">@verk.Geldvorgang?.Datum?.ToString("dd.MM.yyyy")</div>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="action-buttons">
+            <button onclick="window.print();" class="btn-action btn-print">
+                <i class="fas fa-print"></i> Drucken
+            </button>
+            <button onclick="editCategory();" class="btn-action btn-category">
+                <i class="fas fa-tag"></i> Kategorie ändern
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="details-card">
+            <p style="text-align: center; color: #6b7280;">Transaktion nicht gefunden.</p>
+        </div>
+    }
+</div>
+
+<script type="text/javascript">function editCategory() {
+        // TODO: Implement category editing
+        alert('Kategorie-Bearbeitung wird noch implementiert.');
+    }</script>

@@ -15,11 +15,11 @@
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
 
-        .page-header h1 {
-            margin: 0;
-            font-size: 2rem;
-            font-weight: 300;
-        }
+    .page-header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 300;
+    }
 
     .filter-section {
         background: white;
@@ -35,17 +35,17 @@
         border-bottom: 1px solid #e8ecf1;
     }
 
-        .filter-header h3 {
-            margin: 0;
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #1a202c;
-        }
+    .filter-header h3 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1a202c;
+    }
 
-            .filter-header h3 i {
-                margin-right: 10px;
-                color: #667eea;
-            }
+    .filter-header h3 i {
+        margin-right: 10px;
+        color: #667eea;
+    }
 
     .account-filter-list {
         display: grid;
@@ -64,15 +64,15 @@
         user-select: none;
     }
 
-        .account-filter-item:hover {
-            border-color: #667eea;
-            background: #f7f9fc;
-        }
+    .account-filter-item:hover {
+        border-color: #667eea;
+        background: #f7f9fc;
+    }
 
-        .account-filter-item.selected {
-            background: #eef2ff;
-            border-color: #667eea;
-        }
+    .account-filter-item.selected {
+        background: #eef2ff;
+        border-color: #667eea;
+    }
 
     .account-checkbox {
         margin-right: 15px;
@@ -122,17 +122,17 @@
         align-items: center;
     }
 
-        .section-header h3 {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #1a202c;
-        }
+    .section-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a202c;
+    }
 
-            .section-header h3 i {
-                margin-right: 10px;
-                color: #667eea;
-            }
+    .section-header h3 i {
+        margin-right: 10px;
+        color: #667eea;
+    }
 
     .section-body {
         padding: 0;
@@ -149,10 +149,10 @@
         transition: all 0.2s ease;
     }
 
-        .btn-primary:hover {
-            background: #5a67d8;
-            transform: translateY(-1px);
-        }
+    .btn-primary:hover {
+        background: #5a67d8;
+        transform: translateY(-1px);
+    }
 
     .loading-overlay {
         position: fixed;
@@ -220,12 +220,17 @@
     <div class="transactions-section">
         <div class="section-header">
             <h3><i class="fas fa-list"></i> Transaktionen</h3>
-            <button class="btn-primary" onclick="exportTransactions()">
-                <i class="fas fa-download"></i> Export
-            </button>
+            <div>
+                <button class="btn btn-secondary" onclick="exportTransactions('csv')">
+                    <i class="fas fa-file-csv"></i> CSV
+                </button>
+                <button class="btn btn-secondary" onclick="exportTransactions('excel')">
+                    <i class="fas fa-file-excel"></i> Excel
+                </button>
+            </div>
         </div>
         <div class="section-body" id="transactionsGridContainer">
-            @Html.Action("TransactionsGridPartial", "Banking")
+            @Html.Action("TransactionGrid", "Transaction")
         </div>
     </div>
 </div>
@@ -252,17 +257,23 @@
             selectedIds.push(item.getAttribute('data-konto-id'));
         });
 
+        console.log('Selected Account IDs:', selectedIds);
+
         // Show loading
         document.getElementById('loadingOverlay').style.display = 'flex';
 
         // Send AJAX request
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', '@Url.Action("UpdateAccountSelection", "Banking")', true);
+        xhr.open('POST', '@Url.Action("UpdateAccountFilter", "Transaction")', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function() {
             if (xhr.status === 200) {
+                console.log('Account selection updated successfully');
                 // Reload grid
                 loadTransactionsGrid();
+            } else {
+                console.error('Error updating account selection:', xhr.status);
+                document.getElementById('loadingOverlay').style.display = 'none';
             }
         };
         xhr.send(JSON.stringify({ selectedAccountIds: selectedIds }));
@@ -270,12 +281,13 @@
 
     // Load Transactions Grid
     function loadTransactionsGrid() {
+        console.log('Loading transactions grid...');
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', '@Url.Action("TransactionsGridPartial", "Banking")', true);
+        xhr.open('GET', '@Url.Action("TransactionGrid", "Transaction")', true);
         xhr.onload = function() {
             if (xhr.status === 200) {
+                console.log('Grid loaded successfully');
                 document.getElementById('transactionsGridContainer').innerHTML = xhr.responseText;
-                // Hide loading
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
         };
@@ -283,7 +295,11 @@
     }
 
     // Export Transactions
-    function exportTransactions() {
-        alert('Export-Funktion kommt bald...');
+    function exportTransactions(format) {
+        if (format === 'csv') {
+            window.location.href = '@Url.Action("ExportCsv", "Transaction")';
+        } else {
+            window.location.href = '@Url.Action("ExportExcel", "Transaction")';
+        }
     }
 </script>

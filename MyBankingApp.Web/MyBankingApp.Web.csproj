@@ -182,7 +182,6 @@
     <Content Include="Views\Shared\EditorTemplates\Password.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\String.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Banking\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Web.config" />
@@ -194,17 +193,17 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Banking\_BankkontenGrid.cshtml" />
-    <Content Include="Views\Banking\_RecentTransactionsGrid.cshtml" />
-    <Content Include="Views\Banking\_DashboardStyles.cshtml" />
-    <Content Include="Views\Banking\_DashboardHeader.cshtml" />
-    <Content Include="Views\Banking\_DashboardAlerts.cshtml" />
-    <Content Include="Views\Banking\_DashboardStats.cshtml" />
-    <Content Include="Views\Banking\_BankkontenCard.cshtml" />
-    <Content Include="Views\Banking\_RecentTransactionsCard.cshtml" />
-    <Content Include="Views\Banking\_QuickActions.cshtml" />
-    <Content Include="Views\Banking\Transactions.cshtml" />
-    <Content Include="Views\Banking\_TransactionsGrid.cshtml" />
+    <Content Include="Views\Dashboard\Index.cshtml" />
+    <Content Include="Views\Transaction\Index.cshtml" />
+    <Content Include="Views\BankAccount\Index.cshtml" />
+    <Content Include="Views\Dashboard\_AccountSummaryWidget.cshtml" />
+    <Content Include="Views\Dashboard\_RecentTransactionsWidget.cshtml" />
+    <Content Include="Views\Transaction\_TransactionGrid.cshtml" />
+    <Content Include="Views\BankAccount\_AccountGrid.cshtml" />
+    <Content Include="Views\Transaction\Create.cshtml" />
+    <Content Include="Views\Transaction\Details.cshtml" />
+    <Content Include="Views\BankAccount\Create.cshtml" />
+    <Content Include="Views\BankAccount\Details.cshtml" />
     <None Include="Web.Debug.config" />
     <None Include="Web.Release.config" />
   </ItemGroup>
@@ -214,15 +213,20 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\BankingController.cs" />
+    <Compile Include="Controllers\BankAccountController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\TransactionController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\BankaccountViewModels.cs" />
     <Compile Include="ViewModels\ContactVM.cs" />
     <Compile Include="ViewModels\DashboardVM.cs" />
+    <Compile Include="ViewModels\FinancialStatsVM.cs" />
     <Compile Include="ViewModels\TransactionsVM.cs" />
+    <Compile Include="ViewModels\TransactionViewModels.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

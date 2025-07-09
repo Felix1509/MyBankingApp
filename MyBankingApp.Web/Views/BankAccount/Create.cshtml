@@ -1,0 +1,266 @@
+﻿@model MyBankingApp.Web.ViewModels.CreateBankAccountVM
+@{
+    ViewBag.Title = "Neues Bankkonto hinzufügen";
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style type="text/css">
+    .page-header {
+        background: linear-gradient(135deg, #10b981 0%, #065f46 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 300;
+        }
+
+    .form-section {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+        .form-label .required {
+            color: #ef4444;
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 5px;
+    }
+
+    .btn-submit {
+        background: #10b981;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .btn-submit:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+    .btn-cancel {
+        background: #6b7280;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+            text-decoration: none;
+            color: white;
+        }
+
+    .validation-error {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    .info-box {
+        background: #f0fdf4;
+        border: 1px solid #10b981;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+        .info-box i {
+            color: #10b981;
+            margin-right: 10px;
+        }
+</style>
+
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-plus-circle"></i> Neues Bankkonto hinzufügen</h1>
+    </div>
+
+    @using (Html.BeginForm("Create", "BankAccount", FormMethod.Post, new { @class = "account-form" }))
+    {
+        @Html.AntiForgeryToken()
+
+        if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                @Html.ValidationSummary(false, "", new { @class = "m-0" })
+            </div>
+        }
+
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <strong>Tipp:</strong> Sie können Ihre Kontoinformationen auf Ihrem Kontoauszug oder in Ihrem Online-Banking finden.
+        </div>
+
+        <!-- Bank-Informationen -->
+        <div class="form-section">
+            <h2 class="section-title"><i class="fas fa-university"></i> Bank-Informationen</h2>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.BankName, new { @class = "form-label" })
+                        <span class="required">*</span>
+                        @Html.TextBoxFor(m => m.BankName, new { @class = "form-control", placeholder = "z.B. Deutsche Bank" })
+                        @Html.ValidationMessageFor(m => m.BankName, "", new { @class = "validation-error" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.BIC, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.BIC, new { @class = "form-control", placeholder = "z.B. DEUTDEFF" })
+                        <small class="help-text">Bank Identifier Code (optional)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konto-Informationen -->
+        <div class="form-section">
+            <h2 class="section-title"><i class="fas fa-credit-card"></i> Konto-Informationen</h2>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.IBAN, new { @class = "form-label" })
+                        <span class="required">*</span>
+                        @Html.TextBoxFor(m => m.IBAN, new { @class = "form-control", placeholder = "DE89 3704 0044 0532 0130 00", id = "ibanInput" })
+                        @Html.ValidationMessageFor(m => m.IBAN, "", new { @class = "validation-error" })
+                        <small class="help-text">International Bank Account Number</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.AccountHolder, new { @class = "form-label" })
+                        <span class="required">*</span>
+                        @Html.TextBoxFor(m => m.AccountHolder, new { @class = "form-control", placeholder = "Max Mustermann" })
+                        @Html.ValidationMessageFor(m => m.AccountHolder, "", new { @class = "validation-error" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Description, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Description, new { @class = "form-control", placeholder = "z.B. Hauptkonto, Sparkonto..." })
+                        <small class="help-text">Optionale Beschreibung zur besseren Übersicht</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.AccountType, new { @class = "form-label" })
+                        @Html.DropDownListFor(m => m.AccountType,
+                                 Model.AvailableAccountTypes ?? new SelectList(Enumerable.Empty<SelectListItem>()),
+                                 new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Currency, new { @class = "form-label" })
+                        @Html.DropDownListFor(m => m.Currency,
+                                 Model.AvailableCurrencies ?? new SelectList(Enumerable.Empty<SelectListItem>()),
+                                 new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="form-section">
+            <div class="text-right">
+                <a href="@Url.Action("Index", "BankAccount")" class="btn-cancel">
+                    <i class="fas fa-times"></i> Abbrechen
+                </a>
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-check"></i> Konto hinzufügen
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // IBAN Formatierung
+        $('#ibanInput').on('input', function () {
+            var value = $(this).val().replace(/\s/g, '').toUpperCase();
+            var formatted = value.match(/.{1,4}/g);
+            if (formatted) {
+                $(this).val(formatted.join(' '));
+            }
+        });
+
+        // Auto-detect bank from IBAN (German banks)
+        $('#ibanInput').on('blur', function () {
+            var iban = $(this).val().replace(/\s/g, '');
+            if (iban.length >= 8) {
+                var bankCode = iban.substring(4, 12);
+                // TODO: Implement bank lookup
+            }
+        });
+    });
+</script>

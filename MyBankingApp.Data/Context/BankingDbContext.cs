@@ -173,7 +173,7 @@ namespace MyBankingApp.Data.Context
                             Id = Guid.NewGuid(),
                             Buchungsdatum = DateTime.Now.AddDays(-i).AddMonths(-i),
                             ValutaDatum = DateTime.Now.AddDays(-(i - 1)).AddMonths(-i),
-                            Betrag = Convert.ToDecimal(zaehler.ToString() + i.ToString() + "," + i.ToString()) * (int)Math.Pow(-1, i),
+                            Betrag = Convert.ToDecimal(zaehler.ToString() + i.ToString() + "," + i.ToString()),
                             Waehrung = (Waehrung)(i % 10),
                             EmpfaengerName = empfaengerKonto.Kontoinhaber,
                             EmpfaengerIBAN = empfaengerKonto.IBAN,
@@ -184,6 +184,22 @@ namespace MyBankingApp.Data.Context
                             Bankkonto = empfaengerKonto
                         };
                         Transaktionen.Add(Transaktion);
+                        // Reverse transaktion auch einmal hinzufüpgen, damit nicht nur gutschriften da sind
+                        var ZahlungsTrans = new Transaktion()
+                        {
+                            Id = Guid.NewGuid(),
+                            Buchungsdatum = Transaktion.Buchungsdatum,
+                            ValutaDatum = Transaktion.ValutaDatum,
+                            Betrag = Transaktion.Betrag,
+                            Waehrung = Transaktion.Waehrung,
+                            EmpfaengerIBAN = Transaktion.AbsenderIBAN,
+                            EmpfaengerName = Transaktion.AbsenderName,
+                            AbsenderIBAN = Transaktion.EmpfaengerIBAN,
+                            AbsenderName = Transaktion.EmpfaengerName,
+                            Verwendungszweck = "Verwendungszweck" + zaehler + " - Reversed",
+                            Kategorie = "Kategorie " + i,
+                            Bankkonto = AbsenderKonto
+                        };
                         zaehler++;
                     }
                     SaveChanges();
